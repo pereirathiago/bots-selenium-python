@@ -1,6 +1,7 @@
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from webdriver_manager.chrome import ChromeDriverManager
+import PySimpleGUI as sg
 import time
 import os
 
@@ -10,14 +11,14 @@ class PasseiDiretoBot:
       options.add_argument('lang=pt-br')
       options.add_experimental_option("detach", True)
       self.driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
+      
+      self.getLink()
     
 
     def getLink(self):
       try:
         path = os.getcwd() + "//" + "./index.html"
         self.driver.get("file://" + path)
-
-        self.link = input("Digite o Link: ")
       
       except Exception:
         print("Erro ao pegar o link")
@@ -100,12 +101,35 @@ class PasseiDiretoBot:
 
 
     def iniciarBot(self):
-      self.getLink()
       self.abirSite()
       self.deletePaywallAlert()
       self.removeFeedBack()
       self.removeBlur()
     
 
+    def telaApp(self):
+      sg.theme('LightGrey1')
+
+      layout = [
+        [sg.Text('Digite o link da resposta do passei direto:')],
+        [sg.Input(key='link')],
+        [sg.Button('Iniciar')],
+        [sg.Text('Log:', pad=((0,0),(10,0)))],
+        [sg.Output(size=(60, 10), key='_OUT_')]
+      ]
+      
+      self.window = sg.Window('Passei Direto', layout=layout)
+
+      while True:
+        self.event, self.values = self.window.read()
+
+        if self.event == sg.WIN_CLOSED:
+          self.window.close()
+          return
+        elif self.event == 'Iniciar':
+          self.link = self.values['link']
+          self.iniciarBot()
+
+
 bot = PasseiDiretoBot()
-bot.iniciarBot()
+bot.telaApp()
